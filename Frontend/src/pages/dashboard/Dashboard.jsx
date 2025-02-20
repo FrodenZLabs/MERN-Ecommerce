@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../../components/ProductCard";
 import { fetchProducts } from "../../redux/services/authService";
+import { RingLoader } from "react-spinners";
 
 const Dashboard = () => {
   const [products, setProducts] = useState([]);
@@ -22,6 +23,13 @@ const Dashboard = () => {
 
   return (
     <div>
+      {/* Full-screen loader */}
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black opacity-75 z-50">
+          <RingLoader color="#4A90E2" size={100} />
+        </div>
+      )}
+
       {/* User Overview */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold">Welcome,</h2>
@@ -35,17 +43,13 @@ const Dashboard = () => {
 
       {/* Tech Products with Dynamic Pricing */}
       <h3 className="text-xl font-semibold mt-6">Recent Tech Products</h3>
-      {loading ? (
-        <p>Loading products...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-          {products.length > 0 ? (
-            products.map((item) => <ProductCard key={item._id} item={item} />)
-          ) : (
-            <p>No products found.</p>
-          )}
-        </div>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+        {products.length > 0 ? (
+          products.map((item) => <ProductCard key={item._id} item={item} />)
+        ) : (
+          <p>No products found.</p>
+        )}
+      </div>
     </div>
   );
 };

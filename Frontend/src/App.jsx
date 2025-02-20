@@ -33,12 +33,12 @@ function App() {
           />
           <Route path="/product/checkout/:id" element={<CheckoutPage />} />
           <Route path="/product/order-success" element={<OrderSuccessPage />} />
+          <Route path="/credit-assessment" element={<CreditAssessmentPage />} />
+          <Route path="/credit-prediction" element={<CreditPredictionPage />} />
         </Route>
         <Route path="/" element={<LandingPage />} />
         <Route path="/contact-us" element={<ContactUsPage />} />
         <Route path="/about-us" element={<AboutUsPage />} />
-        <Route path="/credit-assessment" element={<CreditAssessmentPage />} />
-        <Route path="/credit-prediction" element={<CreditPredictionPage />} />
       </Routes>
     </BrowserRouter>
   );
