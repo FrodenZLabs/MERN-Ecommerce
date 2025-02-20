@@ -1,16 +1,20 @@
 import { Product } from "../models/products.models.js";
+import cloudinary from "../utils/cloudinary.js";
 import { errorHandler } from "../utils/errorHandler.js";
 
 export const addProduct = async (request, response, next) => {
   try {
-    const { name, description, category, base_price, stock, images } =
-      request.body;
+    const { name, description, category, base_price, stock } = request.body;
 
     if (!request.user.isAdmin) {
       return next(errorHandler(403, "You are not allowed to create a product"));
     }
-    if (!images || images.length !== 5) {
-      return next(errorHandler(400, "You must provide exactly 5 images"));
+    // Ensure images were uploaded
+    if (!request.images || request.images.length === 0) {
+      return response.status(400).json({
+        success: false,
+        message: "At least one image is required",
+      });
     }
 
     const newProduct = new Product({
@@ -19,7 +23,7 @@ export const addProduct = async (request, response, next) => {
       category,
       base_price,
       stock,
-      images,
+      images: request.images,
     });
 
     const savedProduct = await newProduct.save();
@@ -79,6 +83,21 @@ export const deleteProduct = async (request, response, next) => {
       return next(errorHandler(404, "Product not found"));
     }
 
+    // Delete each image from Cloudinary and local storage
+    if (product.images && product.images.length > 0) {
+      for (const imageUrl of product.images) {
+        try {
+          // Extract public ID from Cloudinary URL
+          const publicId = imageUrl.split("/").pop().split(".")[0];
+
+          // Delete from Cloudinary
+          await cloudinary.uploader.destroy(publicId);
+        } catch (error) {
+          console.error(`Error deleting from Cloudinary: ${error.message}`);
+        }
+      }
+    }
+
     await Product.findByIdAndDelete(productId);
     response.status(200).json({
       success: true,
@@ -92,9 +111,52 @@ export const deleteProduct = async (request, response, next) => {
 // Get all products for customers
 export const getAllProducts = async (request, response, next) => {
   try {
-    const products = await Product.find();
+    const { searchTerm, inStock, outOfStock, productTypes, sort, limit } =
+      request.query;
+
+    let filter = {};
+
+    // Search by product name (case-insensitive)
+    if (searchTerm) {
+      filter.name = { $regex: searchTerm, $options: "i" };
+    }
+
+    // Filter by stock availability
+    if (inStock === "true" && outOfStock !== "true") {
+      filter.stock = { $gt: 0 }; // Products in stock
+    } else if (outOfStock === "true" && inStock !== "true") {
+      filter.stock = { $lte: 0 }; // Products out of stock
+    }
+
+    // Filter by category (previously product type)
+    if (productTypes) {
+      const typesArray = productTypes.split(",");
+      filter.category = { $in: typesArray };
+    }
+
+    // Sorting logic
+    let sortOption = {};
+    if (sort === "base_price_desc") {
+      sortOption.base_price = -1; // Highest to lowest price
+    } else if (sort === "base_price_asc") {
+      sortOption.base_price = 1; // Lowest to highest price
+    } else if (sort === "createdAt_desc") {
+      sortOption.createdAt = -1; // Newest first
+    } else if (sort === "createdAt_asc") {
+      sortOption.createdAt = 1; // Oldest first
+    }
+
+    // Convert limit to a number and set default (no limit if not provided)
+    const productLimit = limit ? parseInt(limit, 10) : undefined;
+
+    // Fetch products with optional limit
+    const products = await Product.find(filter)
+      .sort(sortOption)
+      .limit(productLimit);
+      
     response.status(200).json({
       success: true,
+      count: products.length,
       products,
     });
   } catch (error) {

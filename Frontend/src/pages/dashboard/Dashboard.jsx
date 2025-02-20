@@ -1,7 +1,25 @@
+import { useEffect, useState } from "react";
 import ProductCard from "../../components/ProductCard";
-import { data } from "../../constants/data";
+import { fetchProducts } from "../../redux/services/authService";
 
 const Dashboard = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      const latestProducts = await fetchProducts({
+        sortOrder: "createdAt_desc",
+        limit: 6,
+      });
+      setProducts(latestProducts);
+      setLoading(false);
+    };
+
+    loadProducts();
+  }, []);
+
   return (
     <div>
       {/* User Overview */}
@@ -17,12 +35,17 @@ const Dashboard = () => {
 
       {/* Tech Products with Dynamic Pricing */}
       <h3 className="text-xl font-semibold mt-6">Recent Tech Products</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-        {/* Map through products and display ProductCard */}
-        {data.map((item) => (
-          <ProductCard key={item.id} item={item} />
-        ))}
-      </div>
+      {loading ? (
+        <p>Loading products...</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          {products.length > 0 ? (
+            products.map((item) => <ProductCard key={item._id} item={item} />)
+          ) : (
+            <p>No products found.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

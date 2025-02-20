@@ -142,6 +142,35 @@ export const fetchUserPrediction = async (userId) => {
 
     return response.data.prediction || null;
   } catch (error) {
-    error.response?.data?.errorMessage;
+    throw error.response?.data?.errorMessage;
+  }
+};
+
+export const fetchProducts = async (filters) => {
+  try {
+    let queryParams = new URLSearchParams();
+
+    if (filters.searchTerm)
+      queryParams.append("searchTerm", filters.searchTerm);
+    if (filters.inStock) queryParams.append("inStock", "true");
+    if (filters.outOfStock) queryParams.append("outOfStock", "true");
+
+    const selectedTypes = Object.keys(filters.selectedType || {}).filter(
+      (key) => filters.selectedType[key]
+    );
+    if (selectedTypes.length > 0)
+      queryParams.append("productTypes", selectedTypes.join(","));
+
+    if (filters.sortOrder) queryParams.append("sort", filters.sortOrder);
+    if (filters.limit) queryParams.append("limit", filters.limit);
+
+    const response = await axios.get(
+      `${API_URL}/api/products?${queryParams.toString()}`
+    );
+
+    return response.data.products || null;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error.response?.data?.errorMessage;
   }
 };

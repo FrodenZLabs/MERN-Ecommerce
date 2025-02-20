@@ -1,15 +1,15 @@
 /* eslint-disable react/prop-types */
 import { FaCartPlus, FaRegHeart, FaRegEye } from "react-icons/fa";
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 const ProductCard = ({ item }) => {
-  const [currentImage, setCurrentImage] = useState(item.images[0]);
-
-  // Handle image hover change
-  const handleImageHover = (image) => {
-    setCurrentImage(image);
+  // Truncate title after a few words (e.g., 5 words)
+  const truncateTitle = (title, wordLimit = 5) => {
+    const words = title.split(" ");
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join(" ") + "..."
+      : title;
   };
 
   return (
@@ -21,9 +21,9 @@ const ProductCard = ({ item }) => {
       {/* Image with hover effect */}
       <div className="relative w-full h-60">
         <img
-          src={currentImage}
+          src={item.images[0]}
           alt={item.name}
-          className="w-full h-full object-cover rounded-lg transition-transform duration-300"
+          className="w-full h-full object-contain rounded-lg transition-transform duration-300"
         />
         <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
 
@@ -46,22 +46,11 @@ const ProductCard = ({ item }) => {
         </div>
       </div>
 
-      {/* Thumbnails for image preview */}
-      <div className="flex mt-2 gap-x-2">
-        {item.images.map((image, index) => (
-          <img
-            key={index}
-            src={image}
-            alt={`thumbnail-${index}`}
-            className="w-10 h-10 object-cover rounded-lg cursor-pointer"
-            onMouseEnter={() => handleImageHover(image)}
-          />
-        ))}
-      </div>
-
       <Link to={`/product/${item.id}`}>
         <div className="p-4 flex items-center flex-col">
-          <h3 className="mt-2 font-semibold text-lg">{item.name}</h3>
+          <h3 className="mt-2 font-semibold text-md">
+            {truncateTitle(item.name, 5)}
+          </h3>
           <p className="text-gray-700 font-bold">
             Ksh. {Number(item.base_price).toLocaleString()}
           </p>
