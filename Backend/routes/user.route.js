@@ -13,6 +13,7 @@ import {
   updateGuarantor,
 } from "../controllers/user.controller.js";
 import upload from "../utils/multer.js";
+import { uploadUserImages } from "../utils/uploadImage.js";
 
 const router = express.Router();
 
@@ -24,9 +25,10 @@ router.post(
   "/new_client",
   verifyToken,
   upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "id_image", maxCount: 1 },
+    { name: "profileImage", maxCount: 1 },
+    { name: "idImage", maxCount: 1 },
   ]),
+  uploadUserImages,
   createClient
 );
 router.post("/new_guarantor", verifyToken, createGuarantor);

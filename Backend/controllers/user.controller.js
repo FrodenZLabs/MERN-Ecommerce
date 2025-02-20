@@ -27,13 +27,12 @@ export const createClient = async (request, response, next) => {
       county,
     } = request.body;
 
-    const profileImageResult = request.files.image
-      ? await cloudinary.uploader.upload(request.files.image[0].path)
-      : null;
-
-    const idImageResult = request.files.id_image
-      ? await cloudinary.uploader.upload(request.files.id_image[0].path)
-      : null;
+    if (!request.profileImageUrl || !request.idImageUrl) {
+      return response.status(400).json({
+        success: false,
+        message: "Both profile and ID images are required",
+      });
+    }
 
     const currentUserId = request.user.id;
     const isAdmin = request.user.isAdmin;
@@ -73,8 +72,8 @@ export const createClient = async (request, response, next) => {
       phone_no,
       gender,
       marital_status,
-      image: profileImageResult ? profileImageResult.secure_url : null,
-      id_image: idImageResult ? idImageResult.secure_url : null,
+      image: request.profileImageUrl,
+      id_image: request.idImageUrl,
       date_of_birth,
       institution_level,
       institution_name,
