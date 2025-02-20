@@ -128,6 +128,7 @@ export const getClientById = async (request, response, next) => {
       client,
     });
   } catch (error) {
+    console.log(error);
     next(errorHandler(500, "Failed to fetch client", error));
   }
 };

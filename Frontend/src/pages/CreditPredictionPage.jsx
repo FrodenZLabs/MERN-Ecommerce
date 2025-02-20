@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { predictRisk, predictScore } from "../redux/services/authService";
+import {
+  fetchUserPrediction,
+  predictRisk,
+  predictScore,
+} from "../redux/services/authService";
 import { useNavigate } from "react-router-dom";
 
 const CreditPredictionPage = () => {
@@ -20,87 +24,100 @@ const CreditPredictionPage = () => {
 
     const fetchPredictions = async () => {
       try {
-        const { guarantorFinancialData, guarantorData } = formData;
+        const userId = currentUser.user._id;
 
-        const calculateAge = (dob) => {
-          const birthDate = new Date(dob);
-          const today = new Date();
-          let age = today.getFullYear() - birthDate.getFullYear();
-          const monthDiff = today.getMonth() - birthDate.getMonth();
-          if (
-            monthDiff < 0 ||
-            (monthDiff === 0 && today.getDate() < birthDate.getDate())
-          ) {
-            age--;
-          }
-          return age;
-        };
-        const age = guarantorData.guarantorDOB
-          ? calculateAge(guarantorData.guarantorDOB)
-          : null;
+        // Step 1: Check if credit data exists for the user
+        const existingData = await fetchUserPrediction(userId);
 
-        const creditScoreInput = {
-          utility_bill_payment: guarantorFinancialData.utilityBillPayment,
-          service_deposit_required:
-            guarantorFinancialData.serviceDepositRequired,
-          savings_account: guarantorFinancialData.savingsAccount,
-          debt_collection_history: guarantorFinancialData.debtCollectionHistory,
-          employment_tenure: guarantorFinancialData.employmentTenure,
-          additional_income: guarantorFinancialData.additionalIncome,
-          housing_status: guarantorFinancialData.housingStatus,
-          eviction_history: guarantorFinancialData.evictionHistory,
-          community_savings_group: guarantorFinancialData.communitySavingsGroup,
-          mobile_money_account: guarantorFinancialData.mobileMoneyAccount,
-        };
+        if (existingData) {
+          // Step 2: If data exists, display it
+          setCreditScore(existingData.guarantor_credit_score);
+          setRiskLevel(existingData.risk_score);
+        } else {
+          // Step 3: If data does not exist, generate predictions
+          const { guarantorFinancialData, guarantorData } = formData;
 
-        const creditScoreResponse = await predictScore(creditScoreInput);
-        const predictedCreditScore =
-          creditScoreResponse.savedPrediction.credit_score;
+          const calculateAge = (dob) => {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (
+              monthDiff < 0 ||
+              (monthDiff === 0 && today.getDate() < birthDate.getDate())
+            ) {
+              age--;
+            }
+            return age;
+          };
+          const age = guarantorData.guarantorDOB
+            ? calculateAge(guarantorData.guarantorDOB)
+            : null;
 
-        // Ensure credit score is within valid range (300 - 850)
-        const roundedCreditScore = Math.round(predictedCreditScore);
-        const validCreditScore = Math.max(
-          300,
-          Math.min(roundedCreditScore, 850)
-        );
-        const parseToNumber = (value) => (isNaN(value) ? 0 : Number(value));
-        const convertToBoolean = (value) =>
-          value === "True" || value === "true";
+          const creditScoreInput = {
+            utility_bill_payment: guarantorFinancialData.utilityBillPayment,
+            service_deposit_required:
+              guarantorFinancialData.serviceDepositRequired,
+            savings_account: guarantorFinancialData.savingsAccount,
+            debt_collection_history:
+              guarantorFinancialData.debtCollectionHistory,
+            employment_tenure: guarantorFinancialData.employmentTenure,
+            additional_income: guarantorFinancialData.additionalIncome,
+            housing_status: guarantorFinancialData.housingStatus,
+            eviction_history: guarantorFinancialData.evictionHistory,
+            community_savings_group:
+              guarantorFinancialData.communitySavingsGroup,
+            mobile_money_account: guarantorFinancialData.mobileMoneyAccount,
+          };
 
-        const creditRiskInput = {
-          age,
-          marital_status: guarantorData.guarantorMaritalStatus,
-          no_of_dependants: parseToNumber(guarantorData.guarantorDependants),
-          education_level: guarantorData.guarantorEducationLevel,
-          relationship_to_student: guarantorData.guarantorRelationship,
-          income_in_kes: parseToNumber(guarantorData.income),
-          additional_income: parseToNumber(guarantorData.additionalIncome),
-          employment_length: parseToNumber(guarantorData.employmentLength),
-          employment_status: guarantorData.employmentStatus,
-          guarantor_credit_score: validCreditScore,
-          existing_loans: convertToBoolean(guarantorData.existingLoans),
-          outstanding_loan_amount: parseToNumber(
-            guarantorData.outstandingLoanAmount
-          ),
-          monthly_repayment_amount: parseToNumber(
-            guarantorData.monthlyRepaymentAmount
-          ),
-          monthly_expenses: parseToNumber(guarantorData.monthlyExpenses),
-          missed_payments_last_year: parseToNumber(
-            guarantorData.missedPaymentsLastYear
-          ),
-          financial_counseling: convertToBoolean(
-            guarantorData.financialCounseling
-          ),
-        };
+          const creditScoreResponse = await predictScore(creditScoreInput);
+          const predictedCreditScore =
+            creditScoreResponse.savedPrediction.credit_score;
 
-        const creditRiskResponse = await predictRisk(creditRiskInput);
-        const predictedCreditRisk =
-          creditRiskResponse.savedPrediction.risk_score;
-        console.log(predictedCreditRisk);
+          // Ensure credit score is within valid range (300 - 850)
+          const roundedCreditScore = Math.round(predictedCreditScore);
+          const validCreditScore = Math.max(
+            300,
+            Math.min(roundedCreditScore, 850)
+          );
+          const parseToNumber = (value) => (isNaN(value) ? 0 : Number(value));
+          const convertToBoolean = (value) =>
+            value === "True" || value === "true";
 
-        setCreditScore(validCreditScore);
-        setRiskLevel(predictedCreditRisk);
+          const creditRiskInput = {
+            age,
+            marital_status: guarantorData.guarantorMaritalStatus,
+            no_of_dependants: parseToNumber(guarantorData.guarantorDependants),
+            education_level: guarantorData.guarantorEducationLevel,
+            relationship_to_student: guarantorData.guarantorRelationship,
+            income_in_kes: parseToNumber(guarantorData.income),
+            additional_income: parseToNumber(guarantorData.additionalIncome),
+            employment_length: parseToNumber(guarantorData.employmentLength),
+            employment_status: guarantorData.employmentStatus,
+            guarantor_credit_score: validCreditScore,
+            existing_loans: convertToBoolean(guarantorData.existingLoans),
+            outstanding_loan_amount: parseToNumber(
+              guarantorData.outstandingLoanAmount
+            ),
+            monthly_repayment_amount: parseToNumber(
+              guarantorData.monthlyRepaymentAmount
+            ),
+            monthly_expenses: parseToNumber(guarantorData.monthlyExpenses),
+            missed_payments_last_year: parseToNumber(
+              guarantorData.missedPaymentsLastYear
+            ),
+            financial_counseling: convertToBoolean(
+              guarantorData.financialCounseling
+            ),
+          };
+
+          const creditRiskResponse = await predictRisk(creditRiskInput);
+          const predictedCreditRisk =
+            creditRiskResponse.savedPrediction.risk_score;
+
+          setCreditScore(validCreditScore);
+          setRiskLevel(predictedCreditRisk);
+        }
       } catch (error) {
         console.error("Error fetching predictions:", error);
         toast.error("Failed to fetch predictions. Please try again.");

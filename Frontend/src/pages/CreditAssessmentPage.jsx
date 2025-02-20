@@ -26,7 +26,7 @@ const CreditAssessmentPage = () => {
   const navigate = useNavigate();
   const formData = useSelector((state) => state.form);
   const { currentUser } = useSelector((state) => state.authentication);
-  const userId = currentUser._id;
+  const userId = currentUser.user._id;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,8 +48,8 @@ const CreditAssessmentPage = () => {
         phone_no: personalData.phoneNumber,
         gender: personalData.gender,
         marital_status: personalData.maritalStatus,
-        image: personalData.profileImage.name,
-        id_image: personalData.idImage.name,
+        profileImage: personalData.profileImage,
+        idImage: personalData.idImage,
         date_of_birth: personalData.dob,
         institution_level: educationData.institutionLevel,
         institution_name: educationData.institutionName,
@@ -77,8 +77,6 @@ const CreditAssessmentPage = () => {
         education_level: guarantorData.guarantorEducationLevel,
         relationship_to_student: guarantorData.guarantorRelationship,
       };
-      console.log(clientPayload);
-      console.log(guarantorPayload);
       const clientResponse = await createClient(clientPayload);
       const guarantorResponse = await createGuarantor(guarantorPayload);
 

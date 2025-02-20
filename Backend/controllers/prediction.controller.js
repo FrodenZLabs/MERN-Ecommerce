@@ -21,6 +21,17 @@ export const predictScore = [
       const userInput = request.body;
       const currentUserId = request.user.id;
 
+      // Check if the user already has a prediction
+      const existingPrediction = await CreditScore.findOne({
+        userId: currentUserId,
+      });
+      if (existingPrediction) {
+        return response.status(400).json({
+          success: false,
+          message: "You have already made a credit score prediction.",
+        });
+      }
+
       const res = await axios.post(
         `${FLASK_API_URL}/predict_score`,
         userInput,
@@ -60,6 +71,17 @@ export const predictRisk = [
 
       const userInput = request.body;
       const currentUserId = request.user.id;
+
+      // Check if the user already has a risk prediction
+      const existingPrediction = await CreditRisk.findOne({
+        userId: currentUserId,
+      });
+      if (existingPrediction) {
+        return response.status(400).json({
+          success: false,
+          message: "You have already made a risk prediction.",
+        });
+      }
 
       const res = await axios.post(`${FLASK_API_URL}/predict_risk`, userInput, {
         headers: { "Content-Type": "application/json" },

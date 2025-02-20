@@ -53,7 +53,7 @@ export const createClient = async (clientPayload) => {
       {
         withCredentials: true,
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       }
     );
