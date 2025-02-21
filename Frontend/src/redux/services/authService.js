@@ -134,14 +134,15 @@ export const predictRisk = async (creditRiskInput) => {
 export const fetchUserPrediction = async (userId) => {
   try {
     const response = await axios.get(
-      `${API_URL}/api/prediction/user/${userId}`,
-      {
-        withCredentials: true,
-      }
+      `${API_URL}/api/prediction/user/${userId}`
     );
 
     return response.data.prediction || null;
   } catch (error) {
+    if (error.response?.data?.statusCode === 404) {
+      console.warn("Prediction not found, returning null.");
+      return null;
+    }
     throw error.response?.data?.errorMessage;
   }
 };
@@ -165,7 +166,24 @@ export const fetchProducts = async (filters) => {
     if (filters.limit) queryParams.append("limit", filters.limit);
 
     const response = await axios.get(
-      `${API_URL}/api/products?${queryParams.toString()}`
+      `${API_URL}/api/products?${queryParams.toString()}`,
+      {},
+      { withCredentials: true }
+    );
+
+    return response.data.products || null;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error.response?.data?.errorMessage;
+  }
+};
+
+export const fetchProductsByID = async (productID) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/api/products/${productID}`,
+      {},
+      { withCredentials: true }
     );
 
     return response.data.products || null;

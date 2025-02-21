@@ -1,13 +1,29 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../../components/ProductCard";
-import { fetchProducts } from "../../redux/services/authService";
+import {
+  fetchProducts,
+  fetchUserPrediction,
+} from "../../redux/services/authService";
 import { RingLoader } from "react-spinners";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [creditScore, setCreditScore] = useState(null);
+  const [riskLevel, setRiskLevel] = useState(null);
+  const { currentUser } = useSelector((state) => state.authentication);
+  const userId = currentUser.user._id;
 
   useEffect(() => {
+    const loadPrediction = async () => {
+      setLoading(true);
+      const existingData = await fetchUserPrediction(userId);
+      setCreditScore(existingData.guarantor_credit_score);
+      setRiskLevel(existingData.risk_score);
+      setLoading(false);
+    };
+
     const loadProducts = async () => {
       setLoading(true);
       const latestProducts = await fetchProducts({
@@ -19,7 +35,8 @@ const Dashboard = () => {
     };
 
     loadProducts();
-  }, []);
+    loadPrediction();
+  }, [userId]);
 
   return (
     <div>
@@ -32,12 +49,29 @@ const Dashboard = () => {
 
       {/* User Overview */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold">Welcome,</h2>
-        <p className="text-gray-600 mt-2">
-          Your Credit Score: <span className="font-bold">720</span>
+        <h2 className="text-2xl font-semibold">
+          Welcome,{" "}
+          <span className="italic underline text-red-500">
+            {currentUser.user.username}
+          </span>
+        </h2>
+        <p className="text-gray-900 mt-2">
+          Your Credit Score:{" "}
+          <span className="font-bold text-blue-600">{creditScore}</span>
         </p>
-        <p className="text-gray-600">
-          Risk Level: <span className="font-bold text-green-500">Low</span>
+        <p className="text-gray-900">
+          Risk Level:{" "}
+          <span
+            className={`text-md font-bold mt-2 animate-fade-in ${
+              riskLevel === 0
+                ? "text-green-600 bg-green-100 px-4 py-2 rounded-md inline-block"
+                : riskLevel === 1
+                ? "text-yellow-600 bg-yellow-100 px-2 py-1 rounded-md inline-block"
+                : "text-red-600 bg-red-100 px-2 py-1 rounded-md inline-block"
+            }`}
+          >
+            {riskLevel === 0 ? "Low" : riskLevel === 1 ? "Medium" : "High"}
+          </span>
         </p>
       </div>
 

@@ -1,22 +1,17 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const RepaymentPlanPage = () => {
   const navigate = useNavigate();
-  const [product, setProduct] = useState();
-
-  // State for selected repayment plan and delivery address
+  const location = useLocation();
+  const { product, quantity } = location.state || {};
   const [repaymentPlan, setRepaymentPlan] = useState(3);
   const [deliveryAddress, setDeliveryAddress] = useState("");
 
-  //   if (!product) {
-  //     return <h1 className="text-4xl text-center mt-20">Product not found!</h1>;
-  //   }
-
   // Function to proceed to checkout
   const handleProceedToCheckout = () => {
-    navigate("/product/checkout/:id", {
-      state: { product, repaymentPlan, deliveryAddress },
+    navigate(`/product/checkout/${product._id}`, {
+      state: { product, quantity, repaymentPlan, deliveryAddress },
     });
   };
 
@@ -26,14 +21,24 @@ const RepaymentPlanPage = () => {
       <h2 className="text-3xl font-semibold text-center mb-6">
         Choose Repayment Plan
       </h2>
-      <div className="border p-4 rounded-lg mb-4 flex gap-6">
-        <img src="" alt="" className="w-24 h-24 object-cover rounded-lg" />
-        <div>
-          <h3 className="text-xl font-semibold">Name</h3>
-          <p className="text-gray-600">Price: Kshs.</p>
-          <p className="text-gray-600">Stock: 10 left</p>
+      {product ? (
+        <div className="border p-4 rounded-lg mb-4 flex gap-6">
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="w-24 h-24 object-cover rounded-lg"
+          />
+          <div>
+            <h3 className="text-lg font-semibold">{product.name}</h3>
+            <p className="text-gray-900">
+              Price: Kshs. {Number(product.base_price).toLocaleString()}
+            </p>
+            <p className="text-gray-900">Quantity: {quantity}</p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <h1 className="text-4xl text-center mt-20">Product not found!</h1>
+      )}
 
       {/* Repayment Plan Selection */}
       <div className="mb-6">

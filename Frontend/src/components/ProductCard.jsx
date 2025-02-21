@@ -46,7 +46,7 @@ const ProductCard = ({ item }) => {
         </div>
       </div>
 
-      <Link to={`/product/${item.id}`}>
+      <Link to={`/product/${item._id}`}>
         <div className="p-4 flex items-center flex-col">
           <h3 className="mt-2 font-semibold text-md">
             {truncateTitle(item.name, 5)}

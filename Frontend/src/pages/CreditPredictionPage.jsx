@@ -7,6 +7,7 @@ import {
   predictScore,
 } from "../redux/services/authService";
 import { useNavigate } from "react-router-dom";
+import { RingLoader } from "react-spinners";
 
 const CreditPredictionPage = () => {
   const { currentUser } = useSelector((state) => state.authentication);
@@ -138,9 +139,9 @@ const CreditPredictionPage = () => {
 
       {/* Loading State */}
       {loading ? (
-        <p className="text-center text-gray-500 animate-pulse">
-          Loading predictions...
-        </p>
+        <div className="fixed inset-0 flex items-center justify-center bg-black opacity-75 z-50">
+          <RingLoader color="#4A90E2" size={100} />
+        </div>
       ) : (
         <>
           {/* Credit Score Display */}
@@ -171,7 +172,7 @@ const CreditPredictionPage = () => {
           <div className="flex justify-center mt-6">
             <button
               onClick={() => navigate("/dashboard")}
-              className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-md transition duration-300 transform hover:bg-green-600 hover:scale-105"
+              className="bg-green-500 font-semibold text-white px-6 py-3 rounded-lg shadow-md transition duration-300 transform hover:bg-green-600 hover:scale-105"
             >
               Browse Tech Products
             </button>

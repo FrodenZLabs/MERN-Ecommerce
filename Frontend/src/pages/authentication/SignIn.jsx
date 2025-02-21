@@ -33,13 +33,19 @@ const SignIn = () => {
       toast.success(data.message);
 
       // Fetch user's credit prediction status
-      const userPrediction = await fetchUserPrediction(data.user._id);
-      console.log(data);
-      // Redirect based on whether user has a credit prediction
-      if (userPrediction) {
-        navigate("/dashboard"); // Regular user - redirect to dashboard
-      } else {
-        navigate("/credit-assessment"); // New user - redirect to credit assessment
+      try {
+        const userPrediction = await fetchUserPrediction(data.user._id);
+        console.log("User Prediction:", userPrediction);
+
+        // Redirect based on whether user has a credit prediction
+        if (userPrediction) {
+          navigate("/dashboard"); // Regular user - redirect to dashboard
+        } else {
+          navigate("/credit-assessment"); // New user - redirect to credit assessment
+        }
+      } catch (predictionError) {
+        console.error("Error fetching prediction:", predictionError);
+        toast.error("Failed to fetch user prediction.");
       }
     } catch (err) {
       dispatch(signInFailure(err));

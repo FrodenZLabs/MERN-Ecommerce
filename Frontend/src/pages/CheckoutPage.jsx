@@ -1,34 +1,33 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const CheckoutPage = () => {
-  const [product, setProduct] = useState();
-  const [repaymentPlan, setRepaymentPlan] = useState();
-  const [deliveryAddress, setDeliveryAddress] = useState();
   const navigate = useNavigate();
-
-  //   if (!product) {
-  //     return <h1 className="text-4xl text-center mt-20">Product not found!</h1>;
-  //   }
-
-  // Dynamic pricing logic
-  //   const basePrice = parseFloat(product.base_price);
-  //   const interestRate = 0.05; // 5% per month interest
-  //   const totalPrice = basePrice * (1 + interestRate * repaymentPlan);
-  //   const monthlyInstallment = totalPrice / repaymentPlan;
+  const location = useLocation();
+  const { product, quantity, repaymentPlan, deliveryAddress } =
+    location.state || {};
 
   const handleProceedToConfirmation = () => {
     navigate("/product/order-success");
   };
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg my-7">
       <h2 className="text-3xl font-semibold text-center mb-6">Checkout</h2>
 
       {/* Product Details */}
-      <div className="border p-4 rounded-lg mb-4">
-        <h3 className="text-xl font-semibold">Name</h3>
-        <p className="text-gray-600">Kshs. </p>
-        <p className="text-gray-600">Selected Plan: months</p>
+      <div className="border p-4 rounded-lg mb-4 flex gap-6">
+        <img
+          src={product.images[0]}
+          alt={product.name}
+          className="w-24 h-24 object-cover rounded-lg"
+        />
+        <div>
+          <h3 className="text-lg font-semibold">{product.name}</h3>
+          <p className="text-gray-900">
+            Price: Kshs. {Number(product.base_price).toLocaleString()}
+          </p>
+          <p className="text-gray-900">Quantity: {quantity}</p>
+          <p className="text-gray-900">Selected Plan: {repaymentPlan} months</p>
+        </div>
       </div>
 
       {/* Pricing Breakdown */}
