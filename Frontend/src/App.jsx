@@ -15,6 +15,7 @@ import ProductPage from "./pages/ProductPage";
 import RepaymentPlanPage from "./pages/RepaymentPlanPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
+import PaymentPage from "./pages/PaymentPage";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             path="/product/repayment-plan/:id"
             element={<RepaymentPlanPage />}
           />
+          <Route path="/product/payment/:id" element={<PaymentPage />} />
           <Route path="/product/checkout/:id" element={<CheckoutPage />} />
           <Route path="/product/order-success" element={<OrderSuccessPage />} />
           <Route path="/credit-prediction" element={<CreditPredictionPage />} />

@@ -192,3 +192,26 @@ export const fetchProductsByID = async (productID) => {
     throw error.response?.data?.errorMessage;
   }
 };
+
+export const fetchDynamicPrice = async (productId, durationMonths) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/prediction/${productId}/dynamic_price`,
+      { duration_months: durationMonths },
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data.dynamicPrice; // Return the calculated price from backend
+  } catch (error) {
+    console.error(
+      "Error fetching dynamic price:",
+      error.response?.data || error.message
+    );
+    throw error.response?.data?.message || "Failed to fetch dynamic price.";
+  }
+};
