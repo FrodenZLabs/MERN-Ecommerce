@@ -3,27 +3,27 @@ def calculate_dynamic_price(base_price, inventory_stock, risk_level, income_in_k
     if inventory_stock < 10:  # Low stock
         inventory_factor = 1.1
     elif inventory_stock > 50:  # High stock
-        inventory_factor = 0.9
+        inventory_factor = 0.99
     else:
         inventory_factor = 1.0  # Normal stock
     
     # Risk level modifier (low-risk = cheaper price, high-risk = higher price)
     if risk_level == 'Low':
-        credit_risk_factor = 0.9  # 10% discount for low risk
+        credit_risk_factor = 1.05  # 10% discount for low risk
     elif risk_level == 'Medium':
-        credit_risk_factor = 1.0  # No change for medium risk
+        credit_risk_factor = 1.15  # No change for medium risk
     else:  # High risk
         credit_risk_factor = 1.2  # 20% premium for high risk
     
     # Financial capability modifier (based on income)
     if income_in_kes > 100000:  # High income
-        income_factor = 0.85  # 15% discount
+        income_factor = 1.5  # 15% discount
     else:  # Low income
         income_factor = 1.1  # 10% higher price for low income
     
     # Guarantor’s credit score modifier (high guarantor score = cheaper price)
     if guarantor_credit_score > 700:
-        guarantor_credit_factor = 0.85  # 15% discount for high guarantor score
+        guarantor_credit_factor = 1.02  # 15% discount for high guarantor score
     else:
         guarantor_credit_factor = 1.1  # 10% higher price for low guarantor score
 
