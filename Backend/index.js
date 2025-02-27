@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import path from "path";
 import cors from "cors";
 import predictionRoutes from "./routes/prediction.route.js";
 import authRoutes from "./routes/auth.route.js";
@@ -33,6 +34,9 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
+
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, "/Frontend/dist")));
 
 // Server port
 const PORT = process.env.PORT;
