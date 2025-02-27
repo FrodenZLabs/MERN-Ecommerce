@@ -7,8 +7,13 @@ import authRoutes from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
 import productRoutes from "./routes/product.route.js";
 import ClientRoutes from "./routes/user.route.js";
+import paymentRoutes from "./routes/payment.route.js";
 
 const app = express();
+app.use(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }) // Stripe requires raw body
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -39,6 +44,7 @@ app.use("/api/prediction", predictionRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/client", ClientRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // Middleware
 app.use((error, request, response, next) => {

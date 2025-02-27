@@ -215,3 +215,23 @@ export const fetchDynamicPrice = async (productId, durationMonths) => {
     throw error.response?.data?.message || "Failed to fetch dynamic price.";
   }
 };
+
+export const createPayments = async (paymentPayload) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/payments/create-payment-intent`,
+      paymentPayload,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching dynamic price:", error);
+    throw error.response?.data?.message || "Failed to fetch dynamic price.";
+  }
+};
