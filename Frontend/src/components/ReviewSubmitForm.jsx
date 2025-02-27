@@ -5,6 +5,7 @@ const ReviewSubmitForm = ({
   educationData,
   guarantorData,
   guarantorFinancialData,
+  loading,
   handleSubmit,
   handleEdit,
 }) => {
@@ -224,9 +225,10 @@ const ReviewSubmitForm = ({
         </button>
         <button
           onClick={handleSubmit}
+          disabled={loading}
           className="bg-blue-600 text-white px-4 py-2 rounded-md"
         >
-          Submit Application
+          {loading ? "Processing..." : "Submit Application"}
         </button>
       </div>
     </div>

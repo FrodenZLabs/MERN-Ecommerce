@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 
 const CreditAssessmentPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const formData = useSelector((state) => state.form);
@@ -36,6 +37,7 @@ const CreditAssessmentPage = () => {
     }
 
     try {
+      setLoading(true);
       // Extract form data
       const { personalData, residenceData, educationData, guarantorData } =
         formData;
@@ -82,10 +84,15 @@ const CreditAssessmentPage = () => {
 
       toast.success(clientResponse.message);
       toast.success(guarantorResponse.message);
-      navigate("/credit-prediction");
+
+      setTimeout(() => {
+        setLoading(false);
+        navigate("/credit-prediction");
+      }, 5000);
     } catch (error) {
       console.error("Error submitting application:", error);
       toast.error("Failed to submit application. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -141,6 +148,7 @@ const CreditAssessmentPage = () => {
               educationData={formData.educationData}
               guarantorData={formData.guarantorData}
               guarantorFinancialData={formData.guarantorFinancialData}
+              loading={loading}
               handleSubmit={handleSubmit}
               handleEdit={() => setCurrentStep(0)}
             />
