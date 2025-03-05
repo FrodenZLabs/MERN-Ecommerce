@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://mern-ecommerce-yvj6.onrender.com";
+const API_URL = "http://localhost:8000";
 
 export const loginUser = async (email, password) => {
   try {
